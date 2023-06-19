@@ -19,3 +19,5 @@ for (json_file in list.files(json_directory, pattern = "*.json")) {
 # combine all data frames into one data frame
 combined_df <- do.call(rbind, file_df_list)
 
+saveRDS(combined_df, file = "UNGDC.rds")
+

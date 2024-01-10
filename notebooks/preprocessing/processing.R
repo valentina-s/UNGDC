@@ -1,29 +1,41 @@
+library(tidytext)
+library(stringr)
+library(tm)
+library(plyr)
+library(dplyr)
 
 # Reading in data
 
 raw<- readRDS("data/interim/UNGDC.rds")
-processed<-raw
+cleaned<-raw
 
-#remove numbering
-processed$text<-gsub("\\d+\\.\\t", "", raw$text, perl = TRUE)
+#removing pattern: white spaces(multiple spaces and tab) and digits followed by a dot
+cleaned$text <- gsub("\\s+\\d+\\.", "", cleaned$text)
 
+cleaned$text <- gsub("\\d+\\.\\s+", "", cleaned$text)
 
-#This leaves numbering at the beginning of paragraphs that don't end with a dot.
-#I've kept those numbers to avoid removing sentences starting with a year.
-#For example, a speech might begin with "2023 has been a good year."
-
+# first sentence
+cleaned$text <- gsub("^\\d+\\.", "", cleaned$text, perl = TRUE)
 
 #remove tabs
-processed$text<-gsub("\\t", " ", processed$text)
-
-processed$word_count <- str_count(processed$text, "\\S+")
+cleaned$text<-gsub("\\t", "", cleaned$text)
 
 # generate word_count variable
-processed$word_count <- str_count(processed$text, "\\S+")
+cleaned$word_count <- str_count(cleaned$text, "\\S+")
+
+saveRDS(cleaned, "data/interim/cleaned.RDS")
+write.csv(cleaned, "data/interim/cleaned.csv")
 
 # remove stop words
-library(tidytext)
 library(tm)
-light<-processed
-light$text_processed<-removeWords(processed$text, stopwords("en"))
+light<-cleaned
+light$text_processed<-removeWords(light$text, stopwords("en"))
 light$text_processed<-str_squish(light$text_processed)
+
+
+
+library(dplyr)
+
+light<-light%>% select(-text)
+
+saveRDS(light, "data/interim/light.RDS")

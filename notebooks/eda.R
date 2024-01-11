@@ -55,11 +55,10 @@ ggplot(top_terms_df, aes(x = reorder(term, tfidf), y = tfidf)) +
 tmod_lda<-textmodel_lda(dfm, k=10)
 
 
-## Manual TDM (rerun later)
+## Manual TDM
 
 tdm <- TermDocumentMatrix(corpus,
                           control=list(weighting=weightTfIdf,
                                        removePunctuation=T,
                                        stemming=T))
-
 inspect(tdm)

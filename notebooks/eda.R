@@ -35,9 +35,17 @@ dfm <- dfm(tok, tolower=TRUE,
 
 dfm_weighted<-dfm_tfidf(dfm)
 
+
+tdm <- TermDocumentMatrix(corpus,
+                          control=list(weighting=weightTfIdf,
+                                       removePunctuation=T,
+                                       stemming=T))
+inspect(tdm)
+
 library(ggplot2)
 
 top_terms <- topfeatures(dfm_weighted, n = 30)
+
 
 # Convert to data frame for plotting
 top_terms_df <- data.frame(term = names(top_terms), tfidf = unname(top_terms))
@@ -51,14 +59,11 @@ ggplot(top_terms_df, aes(x = reorder(term, tfidf), y = tfidf)) +
        y = "TF-IDF Score") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# LDA Model (rerun later)
+ggsave("figs/top_terms_0111.png")
+
+# LDA Model
 tmod_lda<-textmodel_lda(dfm, k=10)
+save(tmod_lda, file="lda_output.0111.RData")
+terms(tmod_lda, 10)
 
 
-## Manual TDM
-
-tdm <- TermDocumentMatrix(corpus,
-                          control=list(weighting=weightTfIdf,
-                                       removePunctuation=T,
-                                       stemming=T))
-inspect(tdm)

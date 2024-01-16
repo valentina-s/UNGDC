@@ -1,29 +1,34 @@
-library(readr)library(ggplot2)
+library(readr)
+library(ggplot2)
 library(dplyr)
 library(tidyverse)
-
+library(countrycode)
 country <- read_csv("~/Desktop/UNGDC/data/interim/controls.csv")
 country<-country%>%select(-...1)
 
 liwc <- read_csv("~/Desktop/LIWC-22 Results - cleaned - LIWC Analysis.csv")
+liwc<-liwc%>%
+  select(-...1)
 
-country <- country %>%
-  select(year, ccode, polyarchy=v2x_polyarchy) %>%
+country_controls <- country %>%
   mutate(ccode_iso= countrycode(ccode, origin = 'cown',
-                                  destination = 'iso3c'))
+                                destination = 'iso3c'))
+
 
 liwc_regime<-liwc%>%
-  left_join(country, by=c("year","ccode_iso"))
+  left_join(country_controls, by=c("year","ccode_iso"))
 
 liwc_regime<-liwc_regime%>%
-  dplyr::mutate(democracy=case_when(polyarchy<0.5 ~ 0,
-                                 polyarchy>=0.5 ~ 1))
+  dplyr::mutate(democracy=case_when(v2x_polyarchy<0.5 ~ 0,
+                                    v2x_polyarchy>=0.5 ~ 1))
 
 
 library(tidyr)
+write.csv(liwc_regime, "data/interim/liwc_controls.csv")
 
 liwc_long <- liwc_regime %>%
-  select("ccode_iso", "year", "health", "ethnicity", "conflict", "tech", "relig", "illness", "democracy") %>%
+  select("ccode_iso", "year", "health",
+         "ethnicity", "conflict", "tech", "relig", "illness", "democracy") %>%
   pivot_longer(cols = -c(year, democracy, ccode_iso), names_to = "variable", values_to = "value")
 
 

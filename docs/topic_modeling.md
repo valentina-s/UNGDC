@@ -4,6 +4,7 @@
 
 - Data used for topic modeling: `cleaned.csv` (193.5MB)
 - This version was generated after removing stop words, white spaces by using the `light.RDS` (105MB). 
+- Each time window with a duration of 10 years is around 20 MB in size.
 
 
 ## Trial 1: duration 1945:2022, interval 10
@@ -43,11 +44,66 @@ Execute the file [`LDA_trial3.R`](https://github.com/Jihyeonbae/UNGDC/blob/main/
 Outputs are stored in [output](https://github.com/Jihyeonbae/UNGDC/blob/main/output/lda/decade_0115).
 
 
-## Trial 4: duration 1945:2022, interval 10
+## Trial 4: duration 1945:2022, subset, interval 10
 This version removed punctuations and numbers. I saved results in .RDS format. 
-Filtered statements that mention the keyword of interest “sovereignty.” 
+Filtered statements that mention the keyword of interest “sovereignty,” leaving 4898 speeches. 
 Execute file name [`LDA_trial4.R`]("https://github.com/Jihyeonbae/UNGDC/blob/main/notebooks/exploratory/LDA_trial1.R).
 
 Outputs are stored in [`output`](https://github.com/Jihyeonbae/UNGDC/blob/main/output/lda/decade_0115_2).
 
 
+## Trial 5: duration 1945:2022, subset, interval 10, 5 topics
+This version removed punctuations and numbers. I also filtered statements that mention the keyword of interest "sovereignty," leaving 4898 speeches. 
+
+|Window|Time taken|
+|---|---|
+|(1945,1955] | 101.34600000002 seconds|
+|(1955,1965] | 333.904999999999 seconds|
+|(1965,1975] | 363.908999999985 seconds|
+|(1975,1985] | 1172.17999999999 seconds|
+|(1985,1995] | 467.669999999984 seconds|
+|(1995,2005] | 223.121000000014 seconds|
+|(2005,2015] | 172.70199999999 seconds|
+|(2015,2022] | 162.228999999992 seconds|
+
+
+## Trial 6: duration 1945:2022, subset, interval 10, 5 topics
+This time, I removed infix hyphens. 
+
+|Window|Time taken|
+|---|---|
+|(1945,1955] | 97.3159999999916 seconds|
+|(1955,1965] | 282.342000000004 seconds|
+|(1965,1975] | 383.630999999994 seconds|
+|(1975,1985] | 650.744999999995 seconds|
+|(1985,1995] | 397.396999999997 seconds|
+|(1995,2005] | 202.176999999996 seconds|
+|(2005,2015] | 157.535000000003 seconds|
+|(2015,2022] | 173.133999999991 seconds|
+
+
+## Trial 7: duration 1945: 2022, subset, interval 10, 5 topics
+
+included tf_idf option
+
+|Window|Time taken|
+|---|---|
+|(1945,1955] | 97.3159999999916 seconds|
+|(1955,1965] | 282.342000000004 seconds|
+|(1965,1975] | 746.72199999998 seconds|
+|(1975,1985] | 1401.39600000001 seconds|
+|(1985,1995] | 1017.20199999999 seconds|
+|(1995,2005] | 613.669000000024 seconds|
+|(2005,2015] | 347.376000000018 seconds|
+|(2015,2022] | 328.239000000001 seconds|
+
+## Trial 8: duration 1945: 2022, subset, interval 10, 10 topics
+
+saved resulted in sov_0118
+removed stop words, punctuations, stemming, numbers, changed to lower cases
+
+## Trial 9: duration 1945:2022, entire corpus, interaval 10, 10 topics
+
+saved resulted in 0120
+removed stop words, punctuations, stemming, numbers, changed to lower cases
+ran topic modeling across the entire corpus, not just sovereignty. 

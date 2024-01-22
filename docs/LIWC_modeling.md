@@ -14,6 +14,18 @@ See [`liwc_modeling.R`](https://github.com/Jihyeonbae/UNGDC/blob/main/notebooks/
 1. Authoritarian states invoke the term sovereignty as a justification to controversial agendas. Observable implication of this is that authoritarian states will show high score of insecurity when invoking the sovereignty principle. 
 
 	H1: Among the speeches that mention the word "sovereignty," the higher the "v2x_polyarchy" score is for the speaker country, the higher its insecurity sentiment scores are. A list of insecurity sentiments that are operationzalized in LIWC are emo_neg, emo_anx, emo_anger, emo_sad, conflict, lack, fulfill, fatigue, risk, power.
+	
+	H2: Authoritarian states should show higher level of insecurity scores when they are the agent of the main predicate that relates to sovereignty. (this is for the semantic label analysis)
+	
+	
+2. Authoritarian states invoke the term sovereignty more frequently than democracies when there is an external shock of democratization efforts. Speciic temporal interventions are - Hong Kong democratization protest, Arab Spring in 2011. 
+
+	H3: Following Difference-in-Difference estimation, I expect an increased use of the term "sovereignty" by authoritarian states after democratization shocks. 
+	
+	- This is actuall quite counter-intuitive because sovereignty can be framed as the society's right to choose its own sovereign leader. If this hypothesis is affirmed, then it shows that authoritarian states impose a different meaning on the soveriegnty principle. 
+	 
+	
+	
 
  
 

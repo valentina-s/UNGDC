@@ -36,6 +36,12 @@
 - data = not removing stop words using code
 - Although this has stop words, c_tf_idf_ is used. 
 - Results were still too country specific. 
+- Results were still very country-specific even after allowing n-grams from 1-3. 
+- 
+
+## Trial 5
+- diversity = 0.2
+
  
 ## Dynamic Topic Modeling 1
 
@@ -46,6 +52,7 @@
 - `vectorizer_model = CountVectorizer(ngram_range=(1, 3), stop_words="english")`
 - `topic_model.update_topics(docs, vectorizer_model=vectorizer_model)
 `
+- changed the minimum document frequency from 5 to 10. 
 	 
 # Questions
 ## Document length

@@ -1,5 +1,5 @@
 
-read_lda_models <- function(span_levels, output_dir = "output/lda/decade_sov_0116_3") {
+read_lda_models <- function(span_levels, output_dir = "output/lda/decade_0120") {
   lda_models <- list()
   
   for (i in span_levels) {
@@ -18,7 +18,7 @@ read_lda_models <- function(span_levels, output_dir = "output/lda/decade_sov_011
 }
 
 
-output_directory <- "output/lda/decade_sov_0116_3"
+output_directory <- "output/lda/decade_0120"
 
 lda_models <- read_lda_models(span_levels, output_directory)
 
@@ -29,7 +29,7 @@ topic_tables <- function(lda_models, span_levels) {
   for (i in span_levels) {
     if (i %in% names(lda_models)) {
       lda_model <- lda_models[[i]]
-      terms <- terms(lda_model, 5)  
+      terms <- terms(lda_model, 10)  
       topic_table <- data.frame(Topic = 1:ncol(terms), Terms = terms)
       topic_tables[[i]] <- topic_table
     } else {
@@ -43,6 +43,6 @@ topic_tables <- function(lda_models, span_levels) {
 
 
 topic_tables <- topic_tables(lda_models, span_levels)
-topic_tables_0116<-knitr::kable((topic_tables))
+topic_tables_0120<-knitr::kable((topic_tables))
 
-write.csv(topic_tables_0116, "lda_topics_0116_3.csv")
+write.csv(topic_tables_0120, "output/lda/lda_topics_0120.csv")

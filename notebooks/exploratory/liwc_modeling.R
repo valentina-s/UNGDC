@@ -31,6 +31,13 @@ model0 <-plm(risk ~ dd_democracy + wdi_gdpcapcon2015 ,
 )
 summary(model0, vcovBK(model0))
 
+model1 <-plm(emo_neg ~ dd_democracy + wdi_gdpcapcon2015 + cow_num_civil +
+               cow_num_inter + kofgi_dr_eg + v2x_libdem,
+             data = liwc_sov,
+             model = "within"
+)
+summary(model1, vcovBK(model1))
+
 liwc_long <- liwc_regime %>%
   select("ccode_iso", "year", "health",
          "ethnicity", "conflict", "tech", "relig", "illness", "democracy") %>%

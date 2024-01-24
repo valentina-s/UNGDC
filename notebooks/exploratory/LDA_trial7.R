@@ -10,10 +10,8 @@ library(seededlda)
 library(slam)
 library(jsonlite)
 
-## LDA Trial 6
-# This adds more stop words like "will", "must" that showed up as common words in prevous batch. 
 
-light<-readRDS("data/interim/light.RDS")
+light<-readRDS("data/processed/cleaned.RDS")
 light<-light %>%
   select(-...1)
 
@@ -28,10 +26,6 @@ light_interval <- light %>%
   dplyr::mutate(span = as.factor(cut(year,
                                      breaks = c(seq(from = 1945, to = 2022, by = 10), 2022)))) %>%
   dplyr::arrange(year)
-
-light_interval <- light_interval[grepl("\\bsovereignty\\b", light_interval$text_processed), ]
-
-country <- light_interval[grepl("countri", light_interval$text_processed),]
 
 mystopwords <- c("will","must")
 
@@ -64,14 +58,14 @@ lapply(levels(light_interval$span), function(i) {
 #Topic Modeling
 
 lda_generator <- function(corpus, span_levels, num_topics = 10) {
-  output_dir <- "output/lda/decade_sov_0118"
+  output_dir <- "output/lda/decade_0120"
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
   }
   
   for (i in span_levels) {
     subset <- corpus[corpus$span == i, ]
-    subset_dfm <- dfm(subset$text_processed, 
+    subset_dfm <- dfm(subset$text,
                       remove_numbers = TRUE,
                       split_hyphens = TRUE,
                       stem = TRUE, 

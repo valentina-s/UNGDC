@@ -5,8 +5,9 @@ library(plyr)
 library(dplyr)
 library(widyr)
 library(furrr)
+library(quanteda)
 
-light<-readRDS("light.RDS")
+light<-readRDS("data/interim/light.RDS")
 
 tidy_light <- light %>%
   select(text_processed, ) %>%
@@ -62,6 +63,7 @@ nearest_neighbors <- function(df, token) {
         y <- .[rep(token, nrow(.)), ]
         res <- rowSums(. * y) / 
           (sqrt(rowSums(. ^ 2)) * sqrt(sum(.[token, ] ^ 2)))
+        
         
         matrix(res, ncol = 1, dimnames = list(x = names(res)))
       },

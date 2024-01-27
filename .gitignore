@@ -4,3 +4,10 @@
 .Ruserdata
 notebooks/preprocessing/RDS_generator.R
 notebooks/preprocessing/RDS_generator.R
+data/raw/
+output/lda/decade_0111/
+output/lda/decade_0114/
+output/lda/decade_0115/
+output/lda/decade_sov_0115/
+output/lda/decade_sov_0116/
+output/lda/decade_sov_0116_2/

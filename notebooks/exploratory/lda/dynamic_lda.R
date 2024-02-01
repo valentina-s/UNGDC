@@ -72,6 +72,26 @@ heatmap.2(cor,
           notecol = "black", notecex = 0.7,
           symkey = FALSE)
 
+order_phi1_union <- order(colMeans(phi1_union), decreasing = TRUE)
+phi1_result <- phi1_union[, order_phi1_union]
 
+order_phi2_union <- order(colMeans(phi2_union), decreasing = TRUE)
+phi2_result <- phi2_union[, order_phi2_union]
 
+#Function to print out the words
+
+orderBasedOnRow <- function(df, I) {
+  # Order columns based on the Ith row values
+  ordered_cols <- order(apply(df, 2, function(x) x[I]), decreasing = TRUE)
+
+  # Reorder the data frame columns
+  ordered_df <- df[, ordered_cols]
+
+  ordered_row <- ordered_df[I, 1:10]
+
+  return(ordered_row)
+}
+
+phi1_result_row <- orderBasedOnRow(phi1_union, 1)
+print(phi1_result_row)
 

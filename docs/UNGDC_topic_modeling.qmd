@@ -1,9 +1,15 @@
 ---
 title: "Dynamic UNGDC"
+<<<<<<< HEAD
 format: html
 editor: visual
 execute:
   warning: false
+=======
+format: 
+  gfm:
+    preview-mode: raw
+>>>>>>> f94f19a92e8fe73575f7d135d72f995d115c743a
 ---
 
 ## Dynamic Topic Modeling for UNGDC

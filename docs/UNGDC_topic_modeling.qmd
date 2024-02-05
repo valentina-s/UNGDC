@@ -1,7 +1,8 @@
 ---
 title: "Dynamic UNGDC"
-format: html
-editor: visual
+format: 
+  gfm:
+    preview-mode: raw
 ---
 
 ## Dynamic Topic Modeling for UNGDC

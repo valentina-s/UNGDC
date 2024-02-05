@@ -2,6 +2,8 @@
 title: "Dynamic UNGDC"
 format: html
 editor: visual
+execute:
+  warning: false
 ---
 
 ## Dynamic Topic Modeling for UNGDC
@@ -13,6 +15,7 @@ In order to generate LDA topic modeling results for the corpus of UNGD, I split 
 library(plyr)
 library(dplyr)
 library(tm)
+library(gplots)
 library(ggplot2)
 library(quanteda)
 library(readr)
@@ -22,7 +25,7 @@ library(jsonlite)
 library(tm)
 
 
-light<-readRDS("data/processed/cleaned.RDS")
+light <- readRDS("~/Desktop/UNGDC/data/processed/cleaned.RDS")
 
 #Set up the parameters
 light_interval <- light %>%
@@ -35,13 +38,15 @@ light_interval <- light %>%
 ## Term Frequency-Inverse Matrix and Descriptive Data Visualization
 
 -   To inspect the data and frequent words across time intervals, below code generates top-20 terms based on the tf-idf scores.
--   Input dataset: ["data/processed/cleaned.RDS"]().
+-   Input dataset: ["data/processed/cleaned.RDS"](https://github.com/Jihyeonbae/UNGDC).
 
 ```{r}
+#| eval =FALSE
 
 # I added two additional stop words that aren't captured in the generic stop words dictionary. 
 
 mystopwords <- c("will", "must")
+custom_stopwords <- c(stopwords("english"), mystopwords)
 
 # Function for generating tf_idf and plots.
 sapply(levels(light_interval$span), function(i) {
@@ -76,6 +81,12 @@ sapply(levels(light_interval$span), function(i) {
   output_file <- file.path("figs/", paste0("plot_", i, ".png"))
   ggsave(output_file, figure_i, width = 8, height = 5, units = "in")
 })
+```
+
+```{r}
+#print out one sample
+print("figs/plot_(2015, 2022].png")
+print("figs/plot_(2005, 2015].png")
 
 ```
 
@@ -89,9 +100,11 @@ sapply(levels(light_interval$span), function(i) {
 
 ```{r}
 #Topic Modeling
+mystopwords <- c("will", "must")
+custom_stopwords <- c(stopwords("english"), mystopwords)
 
 lda_generator <- function(corpus, span_levels, num_topics = 10) {
-  output_dir <- "output/lda/decade_0203"
+  output_dir <- "~/Desktop/UNGDC/output/lda/decade_0203"
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
   }
@@ -104,7 +117,7 @@ lda_generator <- function(corpus, span_levels, num_topics = 10) {
                       stem = TRUE,
                       remove_punct = TRUE,
                       tolower = TRUE,
-                      remove = stopwords("english"))
+                      remove = custom_stopwords)
     dfm_idf <- dfm_tfidf(subset_dfm,
                          scheme_tf = "count",
                          scheme_df = "inverse")
@@ -123,7 +136,7 @@ lda_generator <- function(corpus, span_levels, num_topics = 10) {
   }
 }
 
-# Loop through each deacde and save separate LDA results. 
+# Loop through each decade and save separate LDA results. 
 span_levels <- levels(light_interval$span)
 lda_generator(light_interval, span_levels)
 
@@ -134,6 +147,29 @@ lda_generator(light_interval, span_levels)
 After running the LDA model, I read in each LDA results as a separate element in a list form. Below code prins out top 10 terms associated with each topic in the LDA models for different span levels. Each row represents one semantic topic.
 
 ```{r}
+
+read_lda_models <- function(span_levels, output_dir = "~/Desktop/UNGDC/output/lda/decade_0203") {
+  lda_models <- list()
+
+  for (i in span_levels) {
+    lda_output_file <- file.path(output_dir, paste0("lda_model_", i, ".RDS"))
+
+    if (file.exists(lda_output_file)) {
+      lda_model <- readRDS(lda_output_file)
+      lda_models[[i]] <- lda_model
+      cat(sprintf("LDA model for %s successfully loaded.\n", i))
+    } else {
+      cat(sprintf("LDA model file for %s not found.\n", i))
+    }
+  }
+
+  return(lda_models)
+}
+
+
+output_directory <- "~/Desktop/UNGDC/output/lda/decade_0203"
+
+lda_models <- read_lda_models(span_levels, output_directory)
 
 topic_tables <- function(lda_models, span_levels) {
   topic_tables <- list()
@@ -155,7 +191,7 @@ topic_tables <- function(lda_models, span_levels) {
 
 
 topic_tables <- topic_tables(lda_models, span_levels)
-print(topic_tables)
+print(knitr::kable(topic_tables))
 ```
 
 -   Each column in the dataset corresponds to a vector of terms representing a specific topic. However, extracting substantively meaningful topics poses challenges due to several issues. One notable challenge is the variability in the set of terms used to represent the same topic across different time periods. For instance, the topic of international security may be discussed in relation to the Soviet Union and North Korea in earlier time periods, whereas in more recent times, it may be associated with Russia and Ukraine.
@@ -169,8 +205,9 @@ print(topic_tables)
 -   Greene and cross, 2017 (https://doi.org/10.1017/pan.2016.7)
 
 ### This generates output for a single pair of time frames
-```{r}
 
+```{r}
+#| eval = FALSE
 model1<-lda_models[[1]]
 model2<-lda_models[[2]]
 
@@ -222,7 +259,6 @@ dim(phi2_union)
 
 cor<-cor(t(phi1_union), t(phi2_union))
 
-library(gplots)
 
 heatmap.2(cor,
           Rowv = FALSE, Colv = FALSE,
@@ -242,19 +278,6 @@ phi1_result <- phi1_union[, order_phi1_union]
 order_phi2_union <- order(colMeans(phi2_union), decreasing = TRUE)
 phi2_result <- phi2_union[, order_phi2_union]
 
-#Function to print out the words
-
-orderBasedOnRow <- function(df, I) {
-  # Order columns based on the Ith row values
-  ordered_cols <- order(apply(df, 2, function(x) x[I]), decreasing = TRUE)
-
-  # Reorder the data frame columns
-  ordered_df <- df[, ordered_cols]
-
-  ordered_row <- ordered_df[I, 1:10]
-
-  return(ordered_row)
-}
 
 phi1_result_row <- orderBasedOnRow(phi1_union, 1)
 phi1_result_long<-phi1_result_row%>%
@@ -268,10 +291,26 @@ pair<-bind_cols(phi1_result_long, phi2_result_long)
 
 ```
 
-## Below function generates heatmaps for a pair of models. 
+#Function to print out the words
+```{r}
+orderBasedOnRow <- function(df, I) {
+  # Order columns based on the Ith row values
+  ordered_cols <- order(apply(df, 2, function(x) x[I]), decreasing = TRUE)
+
+  # Reorder the data frame columns
+  ordered_df <- df[, ordered_cols]
+
+  ordered_row <- ordered_df[I, 1:10]
+
+  return(ordered_row)
+}
+
+
+```
+
+## Below function generates heatmaps for a pair of models.
 
 ```{r}
-library(gplots)
 # Function to generate the heatmap for a pair of models
 
 generate_heatmap <- function(model1, model2, correlation_threshold = 0.9) {
@@ -289,9 +328,9 @@ generate_heatmap <- function(model1, model2, correlation_threshold = 0.9) {
 
   all_terms <- union(colnames(phi1_df), colnames(phi2_df))
 
-  phi1_union <- bind_cols(phi1_df, setNames(data.frame(matrix(0, nrow = nrow(phi1_df), ncol = length(setdiff(all_terms, colnames(phi1_df))))), setdiff(all_terms, colnames(phi1_df))))
+  phi1_union <- dplyr::bind_cols(phi1_df, setNames(data.frame(matrix(0, nrow = nrow(phi1_df), ncol = length(setdiff(all_terms, colnames(phi1_df))))), setdiff(all_terms, colnames(phi1_df))))
   
-  phi2_union <- bind_cols(phi2_df, setNames(data.frame(matrix(0, nrow = nrow(phi2_df), ncol = length(setdiff(all_terms, colnames(phi2_df))))), setdiff(all_terms, colnames(phi2_df))))
+  phi2_union <- dplyr::bind_cols(phi2_df, setNames(data.frame(matrix(0, nrow = nrow(phi2_df), ncol = length(setdiff(all_terms, colnames(phi2_df))))), setdiff(all_terms, colnames(phi2_df))))
 
   phi1_union <- phi1_union[, order(colnames(phi1_union))]
   phi2_union <- phi2_union[, order(colnames(phi2_union))]
@@ -315,11 +354,12 @@ generate_heatmap <- function(model1, model2, correlation_threshold = 0.9) {
             ylab = "Time 1",
             symkey = FALSE)
 
-  return(cor_matrix)
+  return(list(phi1_union = phi1_union, phi2_union = phi2_union, cor_matrix = cor_matrix))
 }
 ```
 
 ## Rows with high correlation
+
 ```{r}
 # Function to print the ordered rows for each topic with high correlation
 print_ordered_rows <- function(phi1_union, phi2_union, cor_matrix, high_corr_indices, correlation_threshold = 0.9) {
@@ -349,7 +389,7 @@ print_ordered_rows <- function(phi1_union, phi2_union, cor_matrix, high_corr_ind
       tidyr::pivot_longer(everything(), names_to = "term_2", values_to = "probability_2")
 
     # Combine phi1 and phi2 results
-    pair <- bind_cols(phi1_result_long, phi2_result_long)
+    pair <- knitr::kable(bind_cols(phi1_result_long, phi2_result_long))
 
     # Append the result to the list
     result_list[[i]] <- pair
@@ -362,16 +402,19 @@ print_ordered_rows <- function(phi1_union, phi2_union, cor_matrix, high_corr_ind
 }
 ```
 
-
 ## Execute functions over pairs
-```{r}
 
+```{r}
 # Loop through pairs of models to generate heatmaps and print results
 for (i in 1:(length(lda_models) - 1)) {
   model1 <- lda_models[[i]]
   model2 <- lda_models[[i + 1]]
 
-  cor_matrix <- generate_heatmap(model1, model2, correlation_threshold = 0.9)
+  result <- generate_heatmap(model1, model2, correlation_threshold = 0.9)
+  
+  phi1_union <- result$phi1_union
+  phi2_union <- result$phi2_union
+  cor_matrix <- result$cor_matrix
 
   # Print ordered rows only if there are high correlations
   if (any(cor_matrix > 0.9, na.rm = TRUE)) {
@@ -384,112 +427,5 @@ for (i in 1:(length(lda_models) - 1)) {
   }
 }
 
-
-```
-```{r}
-library(gplots)
-
-# Function to generate the heatmap for a pair of models
-generate_heatmap <- function(model1, model2, correlation_threshold = 0.9) {
-  phi1 <- model1$phi
-  phi2 <- model2$phi
-
-  phi1_df <- as.data.frame(phi1)
-  phi2_df <- as.data.frame(phi2)
-
-  order_phi1 <- order(colMeans(phi1_df), decreasing = TRUE)
-  order_phi2 <- order(colMeans(phi2_df), decreasing = TRUE)
-
-  phi1_df <- phi1_df[, order_phi1]
-  phi2_df <- phi2_df[, order_phi2]
-
-  all_terms <- union(colnames(phi1_df), colnames(phi2_df))
-
-  phi1_union <- bind_cols(phi1_df, setNames(data.frame(matrix(0, nrow = nrow(phi1_df), ncol = length(setdiff(all_terms, colnames(phi1_df))))), setdiff(all_terms, colnames(phi1_df))))
-  phi2_union <- bind_cols(phi2_df, setNames(data.frame(matrix(0, nrow = nrow(phi2_df), ncol = length(setdiff(all_terms, colnames(phi2_df))))), setdiff(all_terms, colnames(phi2_df))))
-
-  phi1_union <- phi1_union[, order(colnames(phi1_union))]
-  phi2_union <- phi2_union[, order(colnames(phi2_union))]
-
-  dim(phi1_union)
-  dim(phi2_union)
-
-  cor_matrix <- cor(t(phi1_union), t(phi2_union))
-
-  # Heatmap for correlation matrix
-  heatmap.2(cor_matrix,
-            Rowv = FALSE, Colv = FALSE,
-            col = heat.colors(16),
-            trace = "none", # no row/column names
-            key = TRUE, keysize = 1.5,
-            density.info = "none", margins = c(5, 5),
-            cexCol = 1, cexRow = 1, # adjust text size
-            notecol = "black", notecex = 0.7,
-            xlab = "Time 2",
-            ylab = "Time 1",
-            symkey = FALSE)
-
-  return(cor_matrix)
-}
-
-# Function to print the ordered rows for each topic with high correlation
-print_ordered_rows <- function(phi1_union, phi2_union, cor_matrix, correlation_threshold = 0.9) {
-  # Find indices where correlation is higher than the threshold
-  high_corr_indices <- which(cor_matrix > correlation_threshold & !is.na(cor_matrix), arr.ind = TRUE)
-
-  # Create an empty list to store results
-  result_list <- list()
-
-  # Print the ordered rows for each topic with high correlation
-  for (i in seq_len(nrow(high_corr_indices))) {
-    model1_topic <- high_corr_indices[i, 1]
-    model2_topic <- high_corr_indices[i, 2]
-
-    # Print the ordered rows for each model's topic
-    cat(paste("Model 1 - Topic", model1_topic), "\n")
-    phi1_result_row <- orderBasedOnRow(phi1_union, model1_topic)
-    #print(phi1_result_row)
-
-    cat(paste("Model 2 - Topic", model2_topic), "\n")
-    phi2_result_row <- orderBasedOnRow(phi2_union, model2_topic)
-    #print(phi2_result_row)
-
-    # Convert result rows to long format
-    phi1_result_long <- phi1_result_row %>%
-      tidyr::pivot_longer(everything(), names_to = paste0("terms_",rownames(phi1_result_row)), values_to = "probability_1")
-
-    phi2_result_long <- phi2_result_row %>%
-      tidyr::pivot_longer(everything(), names_to = paste0("terms_",rownames(phi2_result_row)), values_to = "probability_2")
-    
-    # Combine phi1 and phi2 results
-    pair <- bind_cols(phi1_result_long, phi2_result_long)
-
-    # Append the result to the list
-    result_list[[i]] <- pair
-  }
-
-  # Combine all results into a single dataframe
-  final_result <- do.call(bind_cols, result_list)
-
-  return(final_result)
-}
-
-# Loop through pairs of models to generate heatmaps and print results
-for (i in 1:(length(lda_models) - 1)) {
-  model1 <- lda_models[[i]]
-  model2 <- lda_models[[i + 1]]
-
-  cor_matrix <- generate_heatmap(model1, model2, correlation_threshold = 0.9)
-
-  # Print ordered rows only if there are high correlations
-  if (any(cor_matrix > 0.9, na.rm = TRUE)) {
-    phi1_result <- phi1_union[, order(colMeans(phi1_union), decreasing = TRUE)]
-    phi2_result <- phi2_union[, order(colMeans(phi2_union), decreasing = TRUE)]
-
-    # Call the print_ordered_rows function and pass relevant parameters
-    final_result <- print_ordered_rows(phi1_result, phi2_result, cor_matrix)
-    print(final_result)
-  }
-}
 
 ```

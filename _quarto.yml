@@ -1,0 +1,13 @@
+project:
+  type: website
+
+website:
+  title: "today"
+  navbar:
+    left:
+      - href: docs/UNGDC_topic_modeling.qmd
+        text: Topic Modeling
+format:
+  html:
+    theme: cosmo
+    toc: true

@@ -7,7 +7,7 @@ website:
     left:
       - href: docs/UNGDC_topic_modeling.qmd
         text: Topic Modeling
-        
+      
 format:
   html:
     theme: cosmo

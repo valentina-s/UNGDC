@@ -1,11 +1,11 @@
 project:
   type: website
-  output-dir: _site
+  output-dir: docs
   render:
     - "index.qmd"
    # - "docs/topic_modeling.md"
    # - "docs/UNGDC_topic_modeling.qmd"
-    - "docs/UNGDC_topic_modeling_updated.qmd"
+    - "docs_backup/UNGDC_topic_modeling_updated.qmd"
   execute-dir: project
   
     
@@ -16,7 +16,7 @@ website:
       - href: index.qmd
         text: Home
    #   - docs/topic_modeling.md
-      - docs/UNGDC_topic_modeling_updated.qmd
+      - docs_backup/UNGDC_topic_modeling_updated.qmd
 
 format:
   html:
